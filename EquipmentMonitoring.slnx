@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="EquipmentMonitoring/EquipmentMonitoring.csproj" />
+  <Project Path="EquipmentSimulator/EquipmentSimulator.csproj" />
+</Solution>

@@ -1,0 +1,90 @@
+﻿<UserControl x:Class="EquipmentMonitoring.Views.EquipmentView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:EquipmentMonitoring.Views"
+             mc:Ignorable="d" >
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock 
+            Text="Equipment Monitoring"
+            FontSize="28"
+            FontWeight="Bold"/>
+
+        <StackPanel
+            Grid.Row="1"
+            Orientation="Horizontal"
+            Margin="0,20">
+
+            <Button 
+                Content="Connect"
+                Command="{Binding ConnectCommand}"
+                Width="100"
+                Height="40"
+                Margin="0,0,10,0"/>
+            
+            <Button 
+                Content="Disconnect"
+                Command="{Binding DisconnectCommand}"
+                Width="100"
+                Height="40"/>
+
+            <TextBlock 
+                Text="{Binding ConnectionStatus}"
+                FontSize="18"
+                FontWeight="Bold"
+                VerticalAlignment="Center"
+                Margin="20,0,0,0"/>
+
+        </StackPanel>
+
+        <StackPanel
+            Grid.Row="2"
+            Margin="0,20,0,0">
+
+            <TextBlock 
+                Text="{Binding Equipment.EquipmentId,
+                                StringFormat=Equipment ID:{0}}"
+                FontSize="20"
+                Margin="0,5"/>
+
+            <TextBlock 
+                Text="{Binding Equipment.Status,
+                                StringFormat=Status: {0}}"
+                FontSize="20"
+                Margin="0,5"/>
+
+            <TextBlock 
+                Text="{Binding Equipment.Temperature,
+                                StringFormat=Temperature: {0:F1} ℃}"
+                FontSize="20"
+                Margin="0,5"/>
+
+            <TextBlock 
+                Text="{Binding Equipment.Pressure,
+                                StringFormat=Pressure: {0:F2} bar}"
+                FontSize="20"
+                Margin="0,5"/>
+
+            <TextBlock 
+                Text="{Binding Equipment.MotorRpm,
+                                StringFormat=Motor RPM: {0}}"
+                FontSize="20"
+                Margin="0,5"/>
+
+            <TextBlock 
+                Text="{Binding Equipment.ProductionCount,
+                                StringFormat=Production: {0} EA}"
+                FontSize="20"
+                Margin="0,5"/>
+
+        </StackPanel>
+        
+    </Grid>
+</UserControl>
