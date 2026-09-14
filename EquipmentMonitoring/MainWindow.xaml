@@ -8,8 +8,8 @@
         xmlns:views="clr-namespace:EquipmentMonitoring.Views"
         mc:Ignorable="d"
         Title="Equipment Monitoring" 
-        Height="700" 
-        Width="1200">
+        Height="900" 
+        Width="1400">
     <Window.Resources>
         
         <DataTemplate DataType="{x:Type vm:DashboardViewModel}">

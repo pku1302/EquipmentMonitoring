@@ -14,12 +14,8 @@ public enum ConnectionState
     Failed
 }
 
-public partial class EquipmentService : ObservableObject
+public partial class EquipmentService 
 {
-    [ObservableProperty]
-    private ConnectionState _connectionState
-        = ConnectionState.Disconnected;
-
     private readonly TcpCommunicationService _tcpService;
     private readonly EquipmentStateService _stateService;
     private readonly EquipmentPacketParser _packetParser;
@@ -61,7 +57,7 @@ public partial class EquipmentService : ObservableObject
     {
         try
         {
-            ConnectionState = 
+            _stateService.ConnectionState = 
                 ConnectionState.Connected;
 
             await _logService.AddAsync(
@@ -75,7 +71,7 @@ public partial class EquipmentService : ObservableObject
         }
         catch (Exception ex)
         {
-            ConnectionState =
+            _stateService.ConnectionState =
                 ConnectionState.Failed;
 
             await _logService.AddAsync(
@@ -211,7 +207,7 @@ public partial class EquipmentService : ObservableObject
     }
     private async void OnConnected()
     {
-        ConnectionState = 
+        _stateService.ConnectionState = 
             ConnectionState.Connected;
 
         await _logService.AddAsync(
@@ -223,7 +219,7 @@ public partial class EquipmentService : ObservableObject
     }
     private async void OnDisconnected()
     {
-        ConnectionState = 
+        _stateService.ConnectionState = 
             ConnectionState.Disconnected;
 
         await _logService.AddAsync(
@@ -235,7 +231,7 @@ public partial class EquipmentService : ObservableObject
     }
     private async void OnReconnecting(int attempt)
     {
-        ConnectionState =
+        _stateService.ConnectionState =
             ConnectionState.Reconnecting;
 
         await _logService.AddAsync(
@@ -248,7 +244,7 @@ public partial class EquipmentService : ObservableObject
 
     private async void OnReconnectFailed()
     {
-        ConnectionState =
+        _stateService.ConnectionState =
             ConnectionState.Failed;
 
         await _logService.AddAsync(
