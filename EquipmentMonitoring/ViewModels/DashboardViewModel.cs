@@ -1,32 +1,65 @@
 ﻿using EquipmentMonitoring.Models;
+using EquipmentMonitoring.Services;
+using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
+using System.Windows;
 
 namespace EquipmentMonitoring.ViewModels;
 
-public class DashboardViewModel : ViewModelBase
+public partial class DashboardViewModel : ViewModelBase
 {
-    private Equipment _equipment;
+    private const int MaxChartPoints = 30;
 
-    public Equipment Equipment
+    private readonly EquipmentStateService
+        _equipmentStateService;
+
+    public Equipment Equipment =>
+        _equipmentStateService.CurrentEquipment;
+
+    public ObservableCollection<double>
+        TemperatureValues { get; }
+        = new();
+
+    public ISeries[] TemperatureSeries { get; }
+
+    public DashboardViewModel(
+        EquipmentStateService equipmentStateService)
     {
-        get => _equipment;
-        set
-        {
-            _equipment = value;
-            OnPropertyChanged();
-        }
+        _equipmentStateService =
+            equipmentStateService;
+
+        TemperatureSeries =
+            [
+                new LineSeries<double>
+                {
+                    Values = TemperatureValues,
+                    Name = "Temperature",
+                    Fill = null
+                }
+            ];
+
+        _equipmentStateService.EquipmentUpdated +=
+            OnEquipmentUpdated;
     }
-    public DashboardViewModel()
+    private void OnEquipmentUpdated(
+        Equipment equipment)
     {
-        _equipment = new Equipment
+        Application.Current.Dispatcher.Invoke(() =>
         {
-            EquipmentId = "EQ-01",
-            Name = "Assembly Machine",
-            Status = "RUN",
-            Temperature = 32.4,
-            Pressure = 1.24
-        };
+            OnPropertyChanged(nameof(Equipment));
+
+            TemperatureValues.Add(
+                equipment.Temperature);
+
+            if (TemperatureValues.Count >
+                    MaxChartPoints)
+            {
+                TemperatureValues.RemoveAt(0);
+            }
+        });
     }
 }

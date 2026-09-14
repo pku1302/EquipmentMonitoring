@@ -24,8 +24,18 @@ while (true)
     {
         while (client.Connected)
         {
-            double temperature =
-                30 + random.NextDouble() * 5;
+            double temperature;
+
+            if (random.Next(0, 10) == 0)
+            {
+                temperature =
+                    random.Next(80, 101);
+            }
+            else
+            {
+                temperature =
+                    30 + random.NextDouble() * 5;
+            }
 
             double pressure =
                 1.0 + random.NextDouble() * 0.5;

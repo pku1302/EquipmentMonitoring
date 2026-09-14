@@ -14,6 +14,7 @@ public class TcpCommunicationService
     private CancellationTokenSource? _receiveCts; // 수신할때 쓰는 취소 토큰
     private CancellationTokenSource? _reconnectCts; // 재연결할때 쓰는 취소 토큰
 
+    private const int MaxReconnectAttempts = 3;
     private string _ipAddress = string.Empty;
     private int _port;
     
@@ -23,6 +24,7 @@ public class TcpCommunicationService
     public event Action? Disconnected;
     public event Action? Connected;
     public event Action<int>? Reconnecting;
+    public event Action? ReconnectFailed;
 
     public bool IsConnected =>
         _client?.Connected == true;
@@ -145,17 +147,17 @@ public class TcpCommunicationService
         int attempt = 0;
 
         while (!_manualDisconnect &&
-            !_reconnectCts.IsCancellationRequested)
+            !_reconnectCts.IsCancellationRequested )
         {
             attempt++;
-
-            Reconnecting?.Invoke(attempt);
 
             try
             {
                 await Task.Delay(
                     TimeSpan.FromSeconds(3),
                     _reconnectCts.Token);
+
+                Reconnecting?.Invoke(attempt);
 
                 await ConnectInternalAsync(
                     _reconnectCts.Token);
@@ -166,13 +168,14 @@ public class TcpCommunicationService
             {
                 return;
             }
-            catch (SocketException)
+            catch (Exception ex)
+                when (ex is SocketException or IOException)
             {
-
-            }
-            catch (IOException)
-            {
-
+                if (attempt >= MaxReconnectAttempts)
+                {
+                    ReconnectFailed?.Invoke();
+                    return;
+                }
             }
         }
     }

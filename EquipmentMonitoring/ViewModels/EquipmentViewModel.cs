@@ -1,165 +1,42 @@
-﻿using EquipmentMonitoring.Commands;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using EquipmentMonitoring.Commands;
 using EquipmentMonitoring.Models;
-using EquipmentMonitoring.Parsers;
 using EquipmentMonitoring.Services;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
-using System.Windows.Input;
 
 namespace EquipmentMonitoring.ViewModels;
 
-public class EquipmentViewModel : ViewModelBase
+public partial class EquipmentViewModel : ViewModelBase
 {
-    private readonly TcpCommunicationService
-        _tcpService;
+    public EquipmentService EquipmentService { get; }
 
-    private readonly EquipmentPacketParser
-        _packetParser;
-
-    private Equipment _equipment;
-
-    private string _connectionStatus =
-        "DISCONNECTED";
-
-    public Equipment Equipment
+    public Equipment Equipment =>
+         EquipmentService.CurrentEquipment;
+    public EquipmentViewModel(
+    EquipmentService equipmentService)
     {
-        get => _equipment;
-
-        set
-        {
-            _equipment = value;
-            OnPropertyChanged();
-        }
+        EquipmentService = equipmentService;
     }
 
-    public string ConnectionStatus
-    {
-        get => _connectionStatus;
+    [ObservableProperty]
+    public string _connectionStatus
+        = "DISCONNECTED";
 
-        set
-        {
-            _connectionStatus = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ICommand ConnectCommand { get; }
-    public ICommand DisconnectCommand { get; }
-
-    public EquipmentViewModel()
-    {
-        _equipment = new Equipment
-        {
-            EquipmentId = "EQ01",
-            Name = "Assembly Machine",
-            Status = "STOP"
-        };
-
-        _tcpService =
-            new TcpCommunicationService();
-
-        _packetParser =
-            new EquipmentPacketParser();
-
-        _tcpService.DataReceived +=
-            OnDataReceived;
-
-        _tcpService.Connected +=
-            OnConnected;
-
-        _tcpService.Disconnected +=
-            OnDisconnected;
-
-        _tcpService.Reconnecting +=
-            OnReconnecting;
-
-        ConnectCommand =
-            new RelayCommand(
-                async _ =>
-                    await ConnectAsync());
-
-        DisconnectCommand =
-            new RelayCommand(
-                _ => Disconnect());
-    }
-
+    [RelayCommand]
     private async Task ConnectAsync()
     {
-        try
-        {
-            ConnectionStatus =
-                "CONNECTING...";
+        await EquipmentService
+            .ConnectAsync();
 
-            await _tcpService.ConnectAsync(
-                "127.0.0.1",
-                5000);
-        }
-
-        catch
-        {
-            ConnectionStatus =
-                "CONNECTION FAILED";
-        }
+        ConnectionStatus = "CONNECTED";
     }
 
-    private void Disconnect()
+    [RelayCommand]
+    private async Task DisConnect()
     {
-        _tcpService.DisConnect();
+        EquipmentService
+            .Disconnect();
     }
 
-    private void OnDataReceived(
-        string packet)
-    {
-        if (!_packetParser.TryParse(
-                packet,
-                out EquipmentData? data))
-        {
-            return;
-        }
 
-        if (data == null)
-            return;
-
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            Equipment = new Equipment
-            {
-                EquipmentId = data.EquipmentId,
-                Name = Equipment.Name,
-                Status = data.Status,
-                Temperature = data.Temperature,
-                Pressure = data.Pressure,
-                MotorRpm = data.MotorRpm,
-                ProductionCount = data.ProductionCount
-            };
-        });
-    }
-    private void OnConnected()
-    {
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            ConnectionStatus = "CONNECTED";
-        });
-    }
-
-    private void OnDisconnected()
-    {
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            ConnectionStatus = "DISCONNECTED";
-            Equipment.Status = "DISCONNECTED";
-
-            OnPropertyChanged(nameof(Equipment));
-        });
-    }
-    private void OnReconnecting(int attempt)
-    {
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            ConnectionStatus =
-                $"RECONNECTING... ({attempt})";
-        });
-    }
 }

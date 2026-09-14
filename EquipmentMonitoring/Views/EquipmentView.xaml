@@ -36,7 +36,7 @@
                 Height="40"/>
 
             <TextBlock 
-                Text="{Binding ConnectionStatus}"
+                Text="{Binding EquipmentService.ConnectionState}"
                 FontSize="18"
                 FontWeight="Bold"
                 VerticalAlignment="Center"
@@ -83,8 +83,9 @@
                                 StringFormat=Production: {0} EA}"
                 FontSize="20"
                 Margin="0,5"/>
-
+            
         </StackPanel>
         
     </Grid>
+
 </UserControl>

@@ -1,44 +1,64 @@
-﻿using EquipmentMonitoring.Commands;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using EquipmentMonitoring.Commands;
+using EquipmentMonitoring.Services;
 using System.Windows.Input;
 
 namespace EquipmentMonitoring.ViewModels;
 
-public class MainViewModel : ViewModelBase
+public partial class MainViewModel : ViewModelBase
 {
-    private ViewModelBase _currentViewModel
-        = new DashboardViewModel();
-    public ViewModelBase CurrentViewModel
-    {
-        get => _currentViewModel;
+    [ObservableProperty]
+    private ViewModelBase _currentViewModel;
 
-        set
-        {
-            _currentViewModel = value;
-            OnPropertyChanged();
-        }
+    private readonly DashboardViewModel _dashboardViewModel;
+    private readonly EquipmentViewModel _equipmentViewModel;
+    private readonly AlarmViewModel _alarmViewModel;
+    private readonly LogViewModel _logViewModel;
+
+    public MainViewModel(
+        DashboardViewModel dashboardViewModel,
+        EquipmentViewModel equipmentViewModel,
+        AlarmViewModel alarmViewModel,
+        LogViewModel logViewModel)
+    {
+        _dashboardViewModel =
+            dashboardViewModel;
+
+        _equipmentViewModel =
+            equipmentViewModel;
+
+        _alarmViewModel =
+            alarmViewModel;
+
+        _logViewModel =
+            logViewModel;
+
+        _currentViewModel =
+            _dashboardViewModel;
     }
 
-    public ICommand ShowDashboardCommand { get; }
-    public ICommand ShowEquipmentCommand { get; }
-    public ICommand ShowAlarmCommand { get; }
-    public ICommand ShowLogCommand { get; }
-
-    public MainViewModel()
+    [RelayCommand]
+    private void ShowDashboard()
     {
-        ShowDashboardCommand = new RelayCommand(
-            _ => CurrentViewModel = new DashboardViewModel());
-
-        ShowEquipmentCommand = new RelayCommand(
-            _ => CurrentViewModel = new EquipmentViewModel());
-
-        ShowAlarmCommand = new RelayCommand(
-            _ => CurrentViewModel = new AlarmViewModel());
-
-        ShowLogCommand = new RelayCommand(
-            _ => CurrentViewModel = new LogViewModel());
+        CurrentViewModel = _dashboardViewModel;
     }
 
+    [RelayCommand]
+    private void ShowEquipment()
+    {
+        CurrentViewModel = _equipmentViewModel;
+    }
+
+    [RelayCommand]
+    private void ShowAlarm()
+    {
+        CurrentViewModel = _alarmViewModel;
+    }
+
+    [RelayCommand]
+    private void ShowLog()
+    {
+        CurrentViewModel = _logViewModel;
+    }
 }

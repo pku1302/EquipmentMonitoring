@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:EquipmentMonitoring.Views"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Margin="30">
@@ -40,7 +41,18 @@
                 Text="{Binding Equipment.Pressure,
                                 StringFormat=Pressure: {0:F2} bar}"
                 FontSize="18"/>
+
+            <GroupBox
+                Header="Temperature Trend"
+                Margin="0,30,0,0"
+                Padding="10">
+                
+                <lvc:CartesianChart 
+                    Series="{Binding TemperatureSeries}"
+                    Height="300"/>
             
+            </GroupBox>
+
         </StackPanel>
         
     </Grid>
