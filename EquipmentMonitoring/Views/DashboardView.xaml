@@ -7,270 +7,800 @@
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Margin="30">
-        
-        <StackPanel>
-            
-            <TextBlock 
+    <Grid Margin="24"
+      Background="#F8FAFC">
+
+        <Grid.RowDefinitions>
+            <!-- 상단 제목 / 상태 -->
+            <RowDefinition Height="Auto"/>
+
+            <!-- KPI -->
+            <RowDefinition Height="Auto"/>
+
+            <!-- Temperature -->
+            <RowDefinition Height="*"/>
+
+            <!-- Pressure -->
+            <RowDefinition Height="*"/>
+
+            <!-- Motor RPM -->
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+
+        <!-- ====================================================== -->
+        <!-- HEADER -->
+        <!-- ====================================================== -->
+
+        <Grid Grid.Row="0"
+          Margin="0,0,0,16">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+
+            <!-- 제목 -->
+            <StackPanel
+            Grid.Column="0"
+            VerticalAlignment="Center">
+
+                <TextBlock
                 Text="Equipment Monitoring"
                 FontSize="28"
                 FontWeight="Bold"
-                Margin="0,0,0,30"/>
-            
-            <TextBlock 
-                Text="{Binding Equipment.EquipmentId}"
-                FontSize="20"/>
-            
-            <TextBlock 
-                Text="{Binding Equipment.Name}"
-                FontSize="18"
-                Margin="0,5"/>
-            
-            <TextBlock 
-                Text="{Binding Equipment.Status}"
-                FontSize="22"
-                FontWeight="Bold"
-                Margin="0,10"/>
-            
-            <TextBlock 
-                Text="{Binding Equipment.Temperature,
-                                StringFormat=Temperature: {0:F1} ℃}"
-                FontSize="18"/>
-            
-            <TextBlock 
-                Text="{Binding Equipment.Pressure,
-                                StringFormat=Pressure: {0:F2} bar}"
-                FontSize="18"/>
+                Foreground="#111827"/>
 
-            <Border
-                Margin="30"
-                Padding="24"
+                <TextBlock
+                Text="Real-time monitoring of equipment status and sensor data"
+                FontSize="13"
+                Foreground="#6B7280"
+                Margin="0,4,0,0"/>
+
+            </StackPanel>
+
+
+            <!-- 상태 / Go Live -->
+            <StackPanel
+            Grid.Column="1"
+            Orientation="Horizontal"
+            VerticalAlignment="Center">
+
+
+                <!-- LIVE / HISTORY / DISCONNECTED -->
+                <Border
+                CornerRadius="16"
+                Background="#F9FAFB"
+                Margin="0,0,10,0">
+
+                    <Button
+                    Command="{Binding GoLiveCommand}"
+                    Padding="12,7"
+                    Cursor="Hand"
+                    BorderThickness="0"
+                    Background="Transparent">
+
+                        <Button.Template>
+
+                            <ControlTemplate TargetType="Button">
+
+                                <Border
+                                CornerRadius="16"
+                                Background="#F9FAFB"
+                                Padding="{TemplateBinding Padding}">
+
+                                    <StackPanel Orientation="Horizontal">
+
+
+                                        <!-- 상태 원 -->
+                                        <Ellipse
+                                        Width="10"
+                                        Height="10"
+                                        Margin="0,0,7,0">
+
+                                            <Ellipse.Style>
+
+                                                <Style TargetType="Ellipse">
+
+                                                    <Setter
+                                                    Property="Fill"
+                                                    Value="#9CA3AF"/>
+
+                                                    <Style.Triggers>
+
+
+                                                        <!-- LIVE -->
+                                                        <DataTrigger
+                                                        Binding="{Binding ChartStatus}"
+                                                        Value="Live">
+
+                                                            <Setter
+                                                            Property="Fill"
+                                                            Value="#22C55E"/>
+
+                                                            <Setter Property="Effect">
+
+                                                                <Setter.Value>
+
+                                                                    <DropShadowEffect
+                                                                    Color="#22C55E"
+                                                                    BlurRadius="8"
+                                                                    ShadowDepth="0"
+                                                                    Opacity="0.7"/>
+
+                                                                </Setter.Value>
+
+                                                            </Setter>
+
+                                                        </DataTrigger>
+
+
+                                                        <!-- HISTORY -->
+                                                        <DataTrigger
+                                                        Binding="{Binding ChartStatus}"
+                                                        Value="History">
+
+                                                            <Setter
+                                                            Property="Fill"
+                                                            Value="#F59E0B"/>
+
+                                                        </DataTrigger>
+
+
+                                                        <!-- DISCONNECTED -->
+                                                        <DataTrigger
+                                                        Binding="{Binding ChartStatus}"
+                                                        Value="Disconnected">
+
+                                                            <Setter
+                                                            Property="Fill"
+                                                            Value="#9CA3AF"/>
+
+                                                        </DataTrigger>
+
+
+                                                    </Style.Triggers>
+
+                                                </Style>
+
+                                            </Ellipse.Style>
+
+                                        </Ellipse>
+
+
+                                        <!-- 상태 텍스트 -->
+                                        <TextBlock
+                                        FontSize="13"
+                                        FontWeight="SemiBold">
+
+                                            <TextBlock.Style>
+
+                                                <Style TargetType="TextBlock">
+
+                                                    <Setter
+                                                    Property="Text"
+                                                    Value="DISCONNECTED"/>
+
+                                                    <Setter
+                                                    Property="Foreground"
+                                                    Value="#6B7280"/>
+
+
+                                                    <Style.Triggers>
+
+
+                                                        <DataTrigger
+                                                        Binding="{Binding ChartStatus}"
+                                                        Value="Live">
+
+                                                            <Setter
+                                                            Property="Text"
+                                                            Value="LIVE"/>
+
+                                                            <Setter
+                                                            Property="Foreground"
+                                                            Value="#16A34A"/>
+
+                                                        </DataTrigger>
+
+
+                                                        <DataTrigger
+                                                        Binding="{Binding ChartStatus}"
+                                                        Value="History">
+
+                                                            <Setter
+                                                            Property="Text"
+                                                            Value="HISTORY"/>
+
+                                                            <Setter
+                                                            Property="Foreground"
+                                                            Value="#D97706"/>
+
+                                                        </DataTrigger>
+
+
+                                                    </Style.Triggers>
+
+                                                </Style>
+
+                                            </TextBlock.Style>
+
+                                        </TextBlock>
+
+                                    </StackPanel>
+
+                                </Border>
+
+                            </ControlTemplate>
+
+                        </Button.Template>
+
+                    </Button>
+
+                </Border>
+
+
+                <!-- Go Live 버튼 -->
+                <Button
+                Command="{Binding GoLiveCommand}"
+                Content="↻  Go Live"
+                Padding="16,8"
+                FontSize="13"
+                FontWeight="SemiBold"
+                Cursor="Hand"
                 Background="White"
-                CornerRadius="12"
-                BorderBrush="#E5E7EB"
-                BorderThickness="1">
-                
+                Foreground="#374151"
+                BorderBrush="#D1D5DB"
+                BorderThickness="1"/>
+
+            </StackPanel>
+
+        </Grid>
+
+
+        <!-- ====================================================== -->
+        <!-- KPI CARDS -->
+        <!-- ====================================================== -->
+
+        <UniformGrid
+        Grid.Row="1"
+        Columns="4"
+        Margin="0,0,0,14">
+
+
+            <!-- Production Count -->
+            <Border
+            Margin="0,0,10,0"
+            Padding="16,12"
+            Background="White"
+            CornerRadius="10"
+            BorderBrush="#E5E7EB"
+            BorderThickness="1">
+
                 <Border.Effect>
                     <DropShadowEffect
-                        BlurRadius="12"
-                        ShadowDepth="2"
-                        Opacity="0.08"/>
+                    BlurRadius="8"
+                    ShadowDepth="1"
+                    Opacity="0.05"/>
                 </Border.Effect>
 
                 <Grid>
+
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <Grid Grid.Row="0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+                    <TextBlock
+                    Text="Production Count"
+                    FontSize="13"
+                    Foreground="#6B7280"/>
 
-                        <StackPanel>
-                            <TextBlock
-                                Text="Temperature Trend"
-                                FontSize="22"
-                                FontWeight="SemiBold"
-                                Foreground="#111827"/>
-                            <TextBlock
-                                Text="Real-time Equipment Temperature"
-                                FontSize="13"
-                                Foreground="#6B7280"
-                                Margin="0,4,0,0"/>
-                        </StackPanel>
-
-                        <Border
-                            Grid.Column="1"
-                            Padding="12,6"
-                            CornerRadius="15"
-                            Background="#F9FAFB"
-                            VerticalAlignment="Center">
-
-                            <Button
-                                Command="{Binding GoLiveCommand}"
-                                Padding="12,6"
-                                Cursor="Hand"
-                                BorderThickness="0"
-                                Background="Transparent">
-
-                                <Button.Template>
-                                    <ControlTemplate TargetType="Button">
-
-                                        <Border
-                x:Name="StatusBorder"
-                CornerRadius="16"
-                Background="#F9FAFB"
-                Padding="{TemplateBinding Padding}">
-
-                                            <StackPanel
-                    Orientation="Horizontal">
-
-                                                <Ellipse
-                        Width="10"
-                        Height="10"
-                        Margin="0,0,7,0">
-
-                                                    <Ellipse.Style>
-                                                        <Style TargetType="Ellipse">
-
-                                                            <Setter
-                                    Property="Fill"
-                                    Value="#9CA3AF"/>
-
-                                                            <Style.Triggers>
-
-                                                                <!-- LIVE -->
-                                                                <DataTrigger
-                                        Binding="{Binding ChartStatus}"
-                                        Value="Live">
-
-                                                                    <Setter
-                                            Property="Fill"
-                                            Value="#EF4444"/>
-
-                                                                    <Setter Property="Effect">
-                                                                        <Setter.Value>
-                                                                            <DropShadowEffect
-                                                    Color="#EF4444"
-                                                    BlurRadius="10"
-                                                    ShadowDepth="0"
-                                                    Opacity="0.8"/>
-                                                                        </Setter.Value>
-                                                                    </Setter>
-
-                                                                </DataTrigger>
-
-                                                                <!-- HISTORY -->
-                                                                <DataTrigger
-                                        Binding="{Binding ChartStatus}"
-                                        Value="History">
-
-                                                                    <Setter
-                                            Property="Fill"
-                                            Value="#9CA3AF"/>
-
-                                                                </DataTrigger>
-
-                                                                <!-- DISCONNECTED -->
-                                                                <DataTrigger
-                                        Binding="{Binding ChartStatus}"
-                                        Value="Disconnected">
-
-                                                                    <Setter
-                                            Property="Fill"
-                                            Value="#6B7280"/>
-
-                                                                </DataTrigger>
-
-                                                            </Style.Triggers>
-
-                                                        </Style>
-                                                    </Ellipse.Style>
-
-                                                </Ellipse>
-
-                                                <TextBlock
-                        FontSize="13"
-                        FontWeight="SemiBold">
-
-                                                    <TextBlock.Style>
-                                                        <Style TargetType="TextBlock">
-
-                                                            <Setter
-                                    Property="Text"
-                                    Value="DISCONNECTED"/>
-
-                                                            <Setter
-                                    Property="Foreground"
-                                    Value="#6B7280"/>
-
-                                                            <Style.Triggers>
-
-                                                                <DataTrigger
-                                        Binding="{Binding ChartStatus}"
-                                        Value="Live">
-
-                                                                    <Setter
-                                            Property="Text"
-                                            Value="LIVE"/>
-
-                                                                    <Setter
-                                            Property="Foreground"
-                                            Value="#DC2626"/>
-
-                                                                </DataTrigger>
-
-                                                                <DataTrigger
-                                        Binding="{Binding ChartStatus}"
-                                        Value="History">
-
-                                                                    <Setter
-                                            Property="Text"
-                                            Value="HISTORY"/>
-
-                                                                    <Setter
-                                            Property="Foreground"
-                                            Value="#6B7280"/>
-
-                                                                </DataTrigger>
-
-                                                            </Style.Triggers>
-
-                                                        </Style>
-                                                    </TextBlock.Style>
-
-                                                </TextBlock>
-
-                                            </StackPanel>
-
-                                        </Border>
-
-                                    </ControlTemplate>
-                                </Button.Template>
-
-                            </Button>
-                        </Border>
-                    </Grid>
                     <StackPanel
-                        Grid.Row="1"
-                        Orientation="Horizontal"
-                        Margin="0,20,0,10">
-                        <TextBlock 
-                            Text="{Binding Equipment.Temperature,
-                                            StringFormat={}{0:F1}}"
-                            FontSize="32"
-                            FontWeight="Bold"
-                            Foreground="#111827"/>
-                        <TextBlock 
-                            Text=" °C"
-                            FontSize="18"
-                            Foreground="#6B7280"
-                            VerticalAlignment="Bottom"
-                            Margin="2,0,0,5"/>
+                    Grid.Row="1"
+                    Orientation="Horizontal"
+                    Margin="0,5,0,0">
+
+                        <TextBlock
+                        Text="{Binding Equipment.ProductionCount,
+                                       StringFormat={}{0:N0}}"
+                        FontSize="25"
+                        FontWeight="Bold"
+                        Foreground="#111827"/>
+
+                        <TextBlock
+                        Text=" pcs"
+                        FontSize="13"
+                        Foreground="#6B7280"
+                        VerticalAlignment="Bottom"
+                        Margin="3,0,0,4"/>
+
                     </StackPanel>
-                    <lvc:CartesianChart 
-                        x:Name="TemperatureChart"
-                        Grid.Row="2"
-                        Series="{Binding TemperatureSeries}"
-                        XAxes="{Binding XAxes}"
-                        YAxes="{Binding YAxes}"
-                        ZoomMode="X"
-                        Height="330"
-                        Margin="0,10,0,0"
-                    
-                        PreviewMouseWheel="TemperatureChart_PreviewMouseWheel"
-                        PreviewMouseMove="TemperatureChart_PreviewMouseMove"
-                        PreviewMouseLeftButtonUp="TemperatureChart_PreviewMouseLeftButtonUp"/>
+
                 </Grid>
 
             </Border>
 
-        </StackPanel>
-        
+
+            <!-- Production Rate -->
+            <Border
+            Margin="0,0,10,0"
+            Padding="16,12"
+            Background="White"
+            CornerRadius="10"
+            BorderBrush="#E5E7EB"
+            BorderThickness="1">
+
+                <Border.Effect>
+                    <DropShadowEffect
+                    BlurRadius="8"
+                    ShadowDepth="1"
+                    Opacity="0.05"/>
+                </Border.Effect>
+
+                <Grid>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock
+                    Text="Production Rate"
+                    FontSize="13"
+                    Foreground="#6B7280"/>
+
+                    <StackPanel
+                    Grid.Row="1"
+                    Orientation="Horizontal"
+                    Margin="0,5,0,0">
+
+                        <TextBlock
+                        Text="{Binding ProductionRate,
+                                       StringFormat={}{0:F1}}"
+                        FontSize="25"
+                        FontWeight="Bold"
+                        Foreground="#111827"/>
+
+                        <TextBlock
+                        Text=" pcs/min"
+                        FontSize="13"
+                        Foreground="#6B7280"
+                        VerticalAlignment="Bottom"
+                        Margin="3,0,0,4"/>
+
+                    </StackPanel>
+
+                </Grid>
+
+            </Border>
+
+
+            <!-- Motor RPM -->
+            <Border
+            Margin="0,0,10,0"
+            Padding="16,12"
+            Background="White"
+            CornerRadius="10"
+            BorderBrush="#E5E7EB"
+            BorderThickness="1">
+
+                <Border.Effect>
+                    <DropShadowEffect
+                    BlurRadius="8"
+                    ShadowDepth="1"
+                    Opacity="0.05"/>
+                </Border.Effect>
+
+                <Grid>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock
+                    Text="Motor RPM"
+                    FontSize="13"
+                    Foreground="#6B7280"/>
+
+                    <StackPanel
+                    Grid.Row="1"
+                    Orientation="Horizontal"
+                    Margin="0,5,0,0">
+
+                        <TextBlock
+                        Text="{Binding Equipment.MotorRpm,
+                                       StringFormat={}{0:N0}}"
+                        FontSize="25"
+                        FontWeight="Bold"
+                        Foreground="#111827"/>
+
+                        <TextBlock
+                        Text=" RPM"
+                        FontSize="13"
+                        Foreground="#6B7280"
+                        VerticalAlignment="Bottom"
+                        Margin="3,0,0,4"/>
+
+                    </StackPanel>
+
+                </Grid>
+
+            </Border>
+
+
+            <!-- Connection -->
+            <Border
+            Padding="16,12"
+            Background="White"
+            CornerRadius="10"
+            BorderBrush="#E5E7EB"
+            BorderThickness="1">
+
+                <Border.Effect>
+                    <DropShadowEffect
+                    BlurRadius="8"
+                    ShadowDepth="1"
+                    Opacity="0.05"/>
+                </Border.Effect>
+
+                <Grid>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock
+                    Text="Status"
+                    FontSize="13"
+                    Foreground="#6B7280"/>
+
+                    <TextBlock
+                    Grid.Row="1"
+                    Margin="0,5,0,0"
+                    FontSize="23"
+                    FontWeight="Bold">
+
+                        <TextBlock.Style>
+
+                            <Style TargetType="TextBlock">
+
+                                <Setter
+                                Property="Text"
+                                Value="Disconnected"/>
+
+                                <Setter
+                                Property="Foreground"
+                                Value="#6B7280"/>
+
+
+                                <Style.Triggers>
+
+                                    <DataTrigger
+                                    Binding="{Binding IsConnected}"
+                                    Value="True">
+
+                                        <Setter
+                                        Property="Text"
+                                        Value="Running"/>
+
+                                        <Setter
+                                        Property="Foreground"
+                                        Value="#16A34A"/>
+
+                                    </DataTrigger>
+
+                                </Style.Triggers>
+
+                            </Style>
+
+                        </TextBlock.Style>
+
+                    </TextBlock>
+
+                </Grid>
+
+            </Border>
+
+        </UniformGrid>
+
+
+        <!-- ====================================================== -->
+        <!-- TEMPERATURE -->
+        <!-- ====================================================== -->
+
+        <Border
+        Grid.Row="2"
+        Margin="0,0,0,10"
+        Padding="14"
+        Background="White"
+        CornerRadius="10"
+        BorderBrush="#E5E7EB"
+        BorderThickness="1">
+
+            <Border.Effect>
+                <DropShadowEffect
+                BlurRadius="8"
+                ShadowDepth="1"
+                Opacity="0.05"/>
+            </Border.Effect>
+
+
+            <Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+
+                <!-- Header -->
+                <Grid Grid.Row="0"
+                  Margin="0,0,0,4">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+
+                    <StackPanel>
+
+                        <TextBlock
+                        Text="Temperature"
+                        FontSize="16"
+                        FontWeight="SemiBold"
+                        Foreground="#111827"/>
+
+                        <TextBlock
+                        Text="Real-time equipment temperature"
+                        FontSize="11"
+                        Foreground="#6B7280"/>
+
+                    </StackPanel>
+
+
+                    <StackPanel
+                    Grid.Column="1"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center">
+
+                        <TextBlock
+                        Text="{Binding Equipment.Temperature,
+                                       StringFormat={}{0:F1}}"
+                        FontSize="21"
+                        FontWeight="Bold"
+                        Foreground="#DC2626"/>
+
+                        <TextBlock
+                        Text=" °C"
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        Foreground="#DC2626"
+                        VerticalAlignment="Bottom"
+                        Margin="2,0,0,3"/>
+
+                    </StackPanel>
+
+                </Grid>
+
+
+                <lvc:CartesianChart
+                x:Name="TemperatureChart"
+                Grid.Row="1"
+
+                Series="{Binding TemperatureChart.Series}"
+                XAxes="{Binding TemperatureChart.XAxes}"
+                YAxes="{Binding TemperatureChart.YAxes}"
+
+                ZoomMode="X"
+
+                PreviewMouseWheel="Chart_PreviewMouseWheel"
+                PreviewMouseMove="Chart_PreviewMouseMove"
+                PreviewMouseLeftButtonUp="Chart_PreviewMouseLeftButtonUp"/>
+
+            </Grid>
+
+        </Border>
+
+
+        <!-- ====================================================== -->
+        <!-- PRESSURE -->
+        <!-- ====================================================== -->
+
+        <Border
+        Grid.Row="3"
+        Margin="0,0,0,10"
+        Padding="14"
+        Background="White"
+        CornerRadius="10"
+        BorderBrush="#E5E7EB"
+        BorderThickness="1">
+
+            <Border.Effect>
+                <DropShadowEffect
+                BlurRadius="8"
+                ShadowDepth="1"
+                Opacity="0.05"/>
+            </Border.Effect>
+
+
+            <Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+
+                <Grid Grid.Row="0"
+                  Margin="0,0,0,4">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+
+                    <StackPanel>
+
+                        <TextBlock
+                        Text="Pressure"
+                        FontSize="16"
+                        FontWeight="SemiBold"
+                        Foreground="#111827"/>
+
+                        <TextBlock
+                        Text="Real-time equipment pressure"
+                        FontSize="11"
+                        Foreground="#6B7280"/>
+
+                    </StackPanel>
+
+
+                    <StackPanel
+                    Grid.Column="1"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center">
+
+                        <TextBlock
+                        Text="{Binding Equipment.Pressure,
+                                       StringFormat={}{0:F1}}"
+                        FontSize="21"
+                        FontWeight="Bold"
+                        Foreground="#2563EB"/>
+
+                        <TextBlock
+                        Text=" bar"
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        Foreground="#2563EB"
+                        VerticalAlignment="Bottom"
+                        Margin="2,0,0,3"/>
+
+                    </StackPanel>
+
+                </Grid>
+
+
+                <lvc:CartesianChart
+                x:Name="PressureChart"
+                Grid.Row="1"
+
+                Series="{Binding PressureChart.Series}"
+                XAxes="{Binding PressureChart.XAxes}"
+                YAxes="{Binding PressureChart.YAxes}"
+
+                ZoomMode="X"
+
+                PreviewMouseWheel="Chart_PreviewMouseWheel"
+                PreviewMouseMove="Chart_PreviewMouseMove"
+                PreviewMouseLeftButtonUp="Chart_PreviewMouseLeftButtonUp"/>
+
+            </Grid>
+
+        </Border>
+
+
+        <!-- ====================================================== -->
+        <!-- MOTOR RPM -->
+        <!-- ====================================================== -->
+
+        <Border
+        Grid.Row="4"
+        Padding="14"
+        Background="White"
+        CornerRadius="10"
+        BorderBrush="#E5E7EB"
+        BorderThickness="1">
+
+            <Border.Effect>
+                <DropShadowEffect
+                BlurRadius="8"
+                ShadowDepth="1"
+                Opacity="0.05"/>
+            </Border.Effect>
+
+
+            <Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+
+                <Grid Grid.Row="0"
+                  Margin="0,0,0,4">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+
+                    <StackPanel>
+
+                        <TextBlock
+                        Text="Motor RPM"
+                        FontSize="16"
+                        FontWeight="SemiBold"
+                        Foreground="#111827"/>
+
+                        <TextBlock
+                        Text="Real-time motor speed"
+                        FontSize="11"
+                        Foreground="#6B7280"/>
+
+                    </StackPanel>
+
+
+                    <StackPanel
+                    Grid.Column="1"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center">
+
+                        <TextBlock
+                        Text="{Binding Equipment.MotorRpm,
+                                       StringFormat={}{0:N0}}"
+                        FontSize="21"
+                        FontWeight="Bold"
+                        Foreground="#16A34A"/>
+
+                        <TextBlock
+                        Text=" RPM"
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        Foreground="#16A34A"
+                        VerticalAlignment="Bottom"
+                        Margin="2,0,0,3"/>
+
+                    </StackPanel>
+
+                </Grid>
+
+
+                <lvc:CartesianChart
+                x:Name="MotorRpmChart"
+                Grid.Row="1"
+
+                Series="{Binding MotorRpmChart.Series}"
+                XAxes="{Binding MotorRpmChart.XAxes}"
+                YAxes="{Binding MotorRpmChart.YAxes}"
+
+                ZoomMode="X"
+
+                PreviewMouseWheel="Chart_PreviewMouseWheel"
+                PreviewMouseMove="Chart_PreviewMouseMove"
+                PreviewMouseLeftButtonUp="Chart_PreviewMouseLeftButtonUp"/>
+
+            </Grid>
+
+        </Border>
+
     </Grid>
-    
+
 </UserControl>

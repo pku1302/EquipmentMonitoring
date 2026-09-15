@@ -1,4 +1,6 @@
 ﻿using EquipmentMonitoring.ViewModels;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.WPF;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -6,9 +8,6 @@ using System.Windows.Input;
 
 namespace EquipmentMonitoring.Views
 {
-    /// <summary>
-    /// DashboardView.xaml에 대한 상호 작용 논리
-    /// </summary>
     public partial class DashboardView : UserControl
     {
         public DashboardView()
@@ -16,25 +15,22 @@ namespace EquipmentMonitoring.Views
             InitializeComponent();
         }
 
-        private void TemperatureChart_PreviewMouseWheel(
+        private void Chart_PreviewMouseWheel(
             object sender,
             MouseWheelEventArgs e)
         {
+            if (sender is not CartesianChart chart)
+                return;
+
             DisableAutoFollow();
 
-            if (e.Delta < 0)
+            Dispatcher.BeginInvoke(() =>
             {
-                Dispatcher.BeginInvoke(() =>
-                {
-                    if (DataContext is DashboardViewModel vm)
-                    {
-                        vm.TryEnableAutoFollow();
-                    }
-                });
-            }
+                SyncCharts(chart);
+            });
         }
 
-        private void TemperatureChart_PreviewMouseMove(
+        private void Chart_PreviewMouseMove(
             object sender,
             MouseEventArgs e)
         {
@@ -44,13 +40,19 @@ namespace EquipmentMonitoring.Views
             }
         }
 
-        private void TemperatureChart_PreviewMouseLeftButtonUp(
+        private void Chart_PreviewMouseLeftButtonUp(
             object sender,
             MouseButtonEventArgs e)
         {
+            if (sender is not CartesianChart chart)
+                return;
+
             if (DataContext is DashboardViewModel vm)
             {
-                vm.TryEnableAutoFollow();
+                Dispatcher.BeginInvoke(() =>
+                {
+                    SyncCharts(chart);
+                });
             }
         }
 
@@ -60,6 +62,23 @@ namespace EquipmentMonitoring.Views
             {
                 viewModel.IsAutoFollow = false;
             }
+        }
+
+        private void SyncCharts(
+            CartesianChart sourceChart)
+        {
+            if (DataContext is not DashboardViewModel viewModel)
+                return;
+
+            var axis = sourceChart.XAxes.First();
+
+            if (axis.MinLimit is null ||
+                axis.MaxLimit is null)
+                return;
+
+            viewModel.SyncVisibleRange(
+                axis.MinLimit.Value,
+                axis.MaxLimit.Value);
         }
 
     }

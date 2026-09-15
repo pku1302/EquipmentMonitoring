@@ -5,6 +5,7 @@ using EquipmentMonitoring.Services;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
 using LiveChartsCore.SkiaSharpView;
+using SkiaSharp;
 using System.Collections.ObjectModel;
 using System.Windows;
 
@@ -29,24 +30,25 @@ public partial class DashboardViewModel : ViewModelBase
 
     [ObservableProperty]
     private bool _isAutoFollow = true;
-
     [ObservableProperty]
     private ChartStatus _chartStatus = ChartStatus.Disconnected;
     [ObservableProperty]
     private bool _isConnected = false;
 
+    private readonly List<SensorChart> _charts;
+
+    public SensorChart TemperatureChart { get; }
+    public SensorChart PressureChart { get; }
+    public SensorChart MotorRpmChart { get; }
+
     public Equipment Equipment =>
         _equipmentStateService.CurrentEquipment;
 
-    private readonly Queue<SensorSample> _sensorBuffer = new();
-    public ObservableCollection<DateTimePoint> TemperatureValues { get; }
-        = new();
 
-    public ISeries[] TemperatureSeries { get; }
+    private readonly Queue<SensorSample> _sensorBuffer = new();
 
     private readonly DateTimeAxis _timeAxis;
     public Axis[] XAxes { get; }
-    public Axis[] YAxes { get; }
 
     partial void OnIsAutoFollowChanged(
         bool oldValue,
@@ -94,19 +96,23 @@ public partial class DashboardViewModel : ViewModelBase
             return;
 
         IsAutoFollow = true;
-        TemperatureValues.Clear();
+
+        foreach (SensorChart chart in _charts)
+        {
+            chart.Clear();
+        }
 
         foreach (SensorSample sample
             in _sensorBuffer)
         {
-            TemperatureValues.Add(
-                new DateTimePoint(
-                    sample.Timestamp,
-                    sample.Temperature));
+            foreach (SensorChart chart in _charts)
+            {
+                chart.Add(sample);
+            }
         }
 
         DateTime latest =
-            TemperatureValues[^1].DateTime;
+            _sensorBuffer.Last().Timestamp;
 
         MoveToLive(latest);
     }
@@ -116,20 +122,6 @@ public partial class DashboardViewModel : ViewModelBase
     {
         _equipmentStateService =
             equipmentStateService;
-
-        TemperatureSeries =
-            [
-                new LineSeries<DateTimePoint>
-                {
-                    Values = TemperatureValues,
-                    Name = "Temperature",
-                    Fill = null,
-
-                    GeometrySize = 6,
-
-                    LineSmoothness = 0.2
-                }
-            ];
 
         _timeAxis =
             new DateTimeAxis(
@@ -144,12 +136,38 @@ public partial class DashboardViewModel : ViewModelBase
                 _timeAxis
             ];
 
-        YAxes =
+        TemperatureChart = new SensorChart(
+            "Temperature",
+            "Temperature (℃)",
+            sample => sample.Temperature,
+            0,
+            100,
+            50,
+            new SKColor(220, 38, 38));
+
+        PressureChart = new SensorChart(
+            "Pressure",
+            "Pressure",
+            sample => sample.Pressure,
+            0,
+            2,
+            1,
+            new SKColor(37, 99, 235));
+
+        MotorRpmChart = new SensorChart(
+            "Motor RPM",
+            "RPM",
+            sample => sample.MotorRpm,
+            0,
+            3000,
+            1500,
+            new SKColor(22, 163, 74));
+
+        _charts =
             [
-                new Axis
-                {
-                    Name = "Temperature (℃)"
-                }
+                TemperatureChart,
+                PressureChart,
+                MotorRpmChart
             ];
 
         _equipmentStateService.EquipmentUpdated +=
@@ -171,6 +189,11 @@ public partial class DashboardViewModel : ViewModelBase
 
         _timeAxis.MaxLimit =
             now.Ticks;
+
+        foreach (SensorChart chart in _charts)
+        {
+            chart.SetXRange(start, now);
+        }
     }
 
     private void OnEquipmentUpdated(
@@ -205,10 +228,10 @@ public partial class DashboardViewModel : ViewModelBase
     private void AddSampleToChart(
         SensorSample sample)
     {
-        TemperatureValues.Add(
-            new DateTimePoint(
-                sample.Timestamp,
-                sample.Temperature));
+        foreach (SensorChart chart in _charts)
+        {
+            chart.Add(sample);
+        }
     }
     private void RemoveOldChartData(
         DateTime now)
@@ -216,10 +239,9 @@ public partial class DashboardViewModel : ViewModelBase
         DateTime cutoff =
             now - DataRetention;
 
-        while (TemperatureValues.Count > 0 &&
-            TemperatureValues[0].DateTime < cutoff)
+        foreach (SensorChart chart in _charts)
         {
-            TemperatureValues.RemoveAt(0);
+            chart.RemoveBefore(cutoff);
         }
     }
 
@@ -237,31 +259,18 @@ public partial class DashboardViewModel : ViewModelBase
             _sensorBuffer.Dequeue();
         }
     }
-    public void TryEnableAutoFollow()
+
+    public void SyncVisibleRange(
+        double minLimit,
+        double maxLimit)
     {
-        if (_sensorBuffer.Count == 0)
-            return;
-
-        if (_timeAxis.MaxLimit == null)
-            return;
-
-        DateTime latestTime =
-            _sensorBuffer.Last().Timestamp;
-
-        double latestTicks =
-            latestTime.Ticks;
-
-        double currentMax =
-            _timeAxis.MaxLimit.Value;
-
-        double tolerance =
-            TimeSpan.FromSeconds(2).Ticks;
-
-        if (currentMax >= latestTicks - tolerance)
+        foreach (SensorChart chart in _charts)
         {
-            GoLive();
+            chart.XAxes[0].MinLimit = minLimit;
+            chart.XAxes[0].MaxLimit = maxLimit;
         }
     }
+
     private void OnConnected()
     {
         Application.Current.Dispatcher.Invoke(() =>
