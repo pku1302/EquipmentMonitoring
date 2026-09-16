@@ -1,5 +1,4 @@
 ﻿using EquipmentMonitoring.Parsers;
-using EquipmentMonitoring.Repositories;
 using EquipmentMonitoring.Services;
 using EquipmentMonitoring.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,32 +34,14 @@ namespace EquipmentMonitoring
             // Infrastructure
             // =========================
 
-            // TCP
-            services.AddSingleton<TcpCommunicationService>();
-
-            // Repository
-            services.AddSingleton(
-                _ => new SensorRepository(ConnectionString));
-
-            services.AddSingleton(
-                _ => new AlarmRepository(ConnectionString));
-
+            services.AddSingleton<MonitoringSignalRService>();
 
             // =========================
             // Application Services
             // =========================
 
-            // 공용 상태
-            services.AddSingleton<EquipmentStateService>();
-
-            // 패킷 파서
-            services.AddSingleton<EquipmentPacketParser>();
-
             // 로그
             services.AddSingleton<LogService>();
-
-            // 장비
-            services.AddSingleton<EquipmentService>();
 
             // =========================
             // ViewModels
@@ -68,13 +49,15 @@ namespace EquipmentMonitoring
 
             services.AddSingleton<DashboardViewModel>();
 
-            services.AddSingleton<EquipmentViewModel>();
+            services.AddTransient<EquipmentViewModel>();
 
             services.AddSingleton<AlarmViewModel>();
 
             services.AddSingleton<LogViewModel>();
 
             services.AddSingleton<MainViewModel>();
+
+            services.AddSingleton<MonitoringSignalRService>();
 
             // =========================
             // Views
@@ -83,18 +66,27 @@ namespace EquipmentMonitoring
             services.AddSingleton<MainWindow>();
         }
 
-        protected override void OnStartup(
+        protected override async void OnStartup(
             StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            Services.GetRequiredService<EquipmentService>();
+            var signalRService =
+                Services.GetRequiredService<MonitoringSignalRService>();
+
+            try
+            {
+                await signalRService.ConnectAsync();
+            }
+            catch (Exception)
+            {
+
+            }
 
             var mainWindow =
                 Services.GetRequiredService<MainWindow>();
 
             mainWindow.Show();
         }
-
     }
 }

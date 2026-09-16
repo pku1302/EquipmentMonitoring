@@ -1,4 +1,7 @@
 <Solution>
+  <Project Path="EquipmentMonitoring.Api/EquipmentMonitoring.Api.csproj" Id="a997c0eb-13c6-46f4-b584-a157b4ade996" />
+  <Project Path="EquipmentMonitoring.Core/EquipmentMonitoring.Core.csproj" Id="f69eb6a6-598b-4986-9932-7c62eeaf52ac" />
+  <Project Path="EquipmentMonitoring.Infrastructure/EquipmentMonitoring.Infrastructure.csproj" Id="35df2518-5df9-4ccf-8701-2de9d1b729cd" />
   <Project Path="EquipmentMonitoring/EquipmentMonitoring.csproj" />
   <Project Path="EquipmentSimulator/EquipmentSimulator.csproj" />
 </Solution>

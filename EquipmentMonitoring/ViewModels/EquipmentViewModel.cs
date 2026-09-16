@@ -1,42 +1,46 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.Input;
 using EquipmentMonitoring.Commands;
+using EquipmentMonitoring.Core.Models;
 using EquipmentMonitoring.Models;
 using EquipmentMonitoring.Services;
+using System.Collections.ObjectModel;
+using System.Windows;
 
 namespace EquipmentMonitoring.ViewModels;
 
 public partial class EquipmentViewModel : ViewModelBase
 {
-    public EquipmentService EquipmentService { get; }
+    private readonly MonitoringSignalRService _signalRService;
+    public ObservableCollection<EquipmentData> Equipments { get; }
+        = new();
 
-    public Equipment Equipment =>
-         EquipmentService.CurrentEquipment;
     public EquipmentViewModel(
-    EquipmentService equipmentService)
+        MonitoringSignalRService signalRService)
     {
-        EquipmentService = equipmentService;
+        _signalRService = signalRService;
+
+        _signalRService.EquipmentUpdated +=
+            OnEquipmentUpdated;
     }
 
-    [ObservableProperty]
-    public string _connectionStatus
-        = "DISCONNECTED";
-
-    [RelayCommand]
-    private async Task ConnectAsync()
+    private void OnEquipmentUpdated(
+        EquipmentData data)
     {
-        await EquipmentService
-            .ConnectAsync();
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            var existing = Equipments
+                .FirstOrDefault(x =>
+                    x.EquipmentId == data.EquipmentId);
 
-        ConnectionStatus = "CONNECTED";
+            if (existing == null)
+            {
+                Equipments.Add(data);
+                return;
+            }
+
+            var index = Equipments.IndexOf(existing);
+
+            Equipments[index] = data;
+        });
     }
-
-    [RelayCommand]
-    private async Task DisConnect()
-    {
-        EquipmentService
-            .Disconnect();
-    }
-
-
 }
