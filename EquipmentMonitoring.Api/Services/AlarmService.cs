@@ -1,6 +1,8 @@
-﻿using EquipmentMonitoring.Core.Enums;
+﻿using EquipmentMonitoring.Api.Hubs;
+using EquipmentMonitoring.Core.Enums;
 using EquipmentMonitoring.Core.Interfaces;
 using EquipmentMonitoring.Core.Models;
+using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 
 namespace EquipmentMonitoring.Api.Services;
@@ -10,14 +12,16 @@ public class AlarmService
     private const double HighTemperatureLimit = 80.0;
 
     private readonly IAlarmRepository _alarmRepository;
-
+    private readonly IHubContext<MonitoringHub> _hubContext;
     private readonly ConcurrentDictionary<string, Alarm>
         _activeTemperatureAlarms = new();
 
     public AlarmService(
-        IAlarmRepository alarmRepository)
+        IAlarmRepository alarmRepository,
+        IHubContext<MonitoringHub> hubContext)
     {
         _alarmRepository = alarmRepository;
+        _hubContext = hubContext;
     }
 
     public async Task CheckAsync(
@@ -49,6 +53,11 @@ public class AlarmService
 
             _activeTemperatureAlarms[key] = alarm;
 
+            await _hubContext.Clients.All.SendAsync(
+                "AlarmRaised",
+                alarm,
+                cancellationToken);
+
             return;
         }
 
@@ -61,6 +70,14 @@ public class AlarmService
             await _alarmRepository.ClearAsync(
                 activeAlarm.Id,
                 clearedAt,
+                cancellationToken);
+
+            activeAlarm.IsActive = false;
+            activeAlarm.ClearedAt = clearedAt;
+
+            await _hubContext.Clients.All.SendAsync(
+                "AlarmCleared",
+                activeAlarm,
                 cancellationToken);
         }
     }

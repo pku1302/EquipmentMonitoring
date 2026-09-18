@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EquipmentMonitoring.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
@@ -11,16 +12,26 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace EquipmentMonitoring.Views
+namespace EquipmentMonitoring.Views;
+
+/// <summary>
+/// AlarmView.xaml에 대한 상호 작용 논리
+/// </summary>
+public partial class AlarmView : UserControl
 {
-    /// <summary>
-    /// AlarmView.xaml에 대한 상호 작용 논리
-    /// </summary>
-    public partial class AlarmView : UserControl
+    public AlarmView()
     {
-        public AlarmView()
+        InitializeComponent();
+
+        Loaded += AlarmView_Loaded;
+    }
+
+    private async void AlarmView_Loaded(
+        object sender, RoutedEventArgs e)
+    {
+        if (DataContext is AlarmViewModel vm)
         {
-            InitializeComponent();
+            await vm.LoadAsync();
         }
     }
 }

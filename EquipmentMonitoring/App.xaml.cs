@@ -4,6 +4,7 @@ using EquipmentMonitoring.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using System.Configuration;
 using System.Data;
+using System.Net.Http;
 using System.Windows;
 
 namespace EquipmentMonitoring
@@ -11,12 +12,6 @@ namespace EquipmentMonitoring
     public partial class App : Application
     {
         public IServiceProvider Services { get; }
-
-        private const string ConnectionString =
-            @"Server=localhost;
-                  Database=EquipmentMonitoringDb;
-                  Trusted_Connection=True;
-                  TrustServerCertificate=True;";
 
         public App()
         {
@@ -34,11 +29,19 @@ namespace EquipmentMonitoring
             // Infrastructure
             // =========================
 
+            services.AddSingleton(new HttpClient
+            {
+                BaseAddress =
+                    new Uri("https://localhost:7257/")
+            });
+
             services.AddSingleton<MonitoringSignalRService>();
 
             // =========================
             // Application Services
             // =========================
+
+            services.AddSingleton<AlarmApiService>();
 
             // 로그
             services.AddSingleton<LogService>();

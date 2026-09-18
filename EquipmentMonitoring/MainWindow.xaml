@@ -11,7 +11,7 @@
         Height="900" 
         Width="1400">
     <Window.Resources>
-        
+
         <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
             <views:DashboardView />
         </DataTemplate>
@@ -27,7 +27,7 @@
         <DataTemplate DataType="{x:Type vm:LogViewModel}">
             <views:LogView />
         </DataTemplate>
-        
+
     </Window.Resources>
 
     <Grid>
@@ -35,45 +35,142 @@
             <ColumnDefinition Width="220"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-    <StackPanel
+
+        <!-- 왼쪽 메뉴 -->
+        <StackPanel
         Grid.Column="0"
         Background="#252525">
-        
-        <TextBlock
+
+            <TextBlock
             Text="MONITORING"
             Foreground="White"
             FontSize="22"
             FontWeight="Bold"
             Margin="20,30"/>
-        
-        <Button 
+
+            <Button
             Content="Dashboard"
             Command="{Binding ShowDashboardCommand}"
             Height="50"
             Margin="10,5"/>
-        
-        <Button 
+
+            <Button
             Content="Equipment"
             Command="{Binding ShowEquipmentCommand}"
             Height="50"
             Margin="10,5"/>
-        
-        <Button 
+
+            <Button
             Content="Alarm"
             Command="{Binding ShowAlarmCommand}"
             Height="50"
             Margin="10,5"/>
-        
-        <Button 
+
+            <Button
             Content="Log"
             Command="{Binding ShowLogCommand}"
             Height="50"
             Margin="10,5"/>
-        
-    </StackPanel>
-    
-    <ContentControl
-        Grid.Column="1"
-        Content="{Binding CurrentViewModel}" />
+
+        </StackPanel>
+
+        <!-- 오른쪽 영역 -->
+        <Grid Grid.Column="1">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- 상단 상태바 -->
+            <Border
+            Grid.Row="0"
+            Background="#1E1E1E"
+            BorderBrush="#333333"
+            BorderThickness="0,0,0,1">
+
+                <StackPanel
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Margin="0,0,20,0">
+
+                    <Ellipse
+                    Width="10"
+                    Height="10"
+                    Margin="0,0,8,0">
+
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter
+                                Property="Fill"
+                                Value="Gray"/>
+
+                                <Style.Triggers>
+
+                                    <DataTrigger
+                                    Binding="{Binding ConnectionState}"
+                                    Value="Connected">
+                                        <Setter
+                                        Property="Fill"
+                                        Value="LimeGreen"/>
+                                    </DataTrigger>
+
+                                    <DataTrigger
+                                    Binding="{Binding ConnectionState}"
+                                    Value="Connecting">
+                                        <Setter
+                                        Property="Fill"
+                                        Value="Orange"/>
+                                    </DataTrigger>
+
+                                    <DataTrigger
+                                    Binding="{Binding ConnectionState}"
+                                    Value="Reconnecting">
+                                        <Setter
+                                        Property="Fill"
+                                        Value="Orange"/>
+                                    </DataTrigger>
+
+                                    <DataTrigger
+                                    Binding="{Binding ConnectionState}"
+                                    Value="Disconnected">
+                                        <Setter
+                                        Property="Fill"
+                                        Value="Gray"/>
+                                    </DataTrigger>
+
+                                    <DataTrigger
+                                    Binding="{Binding ConnectionState}"
+                                    Value="Failed">
+                                        <Setter
+                                        Property="Fill"
+                                        Value="Red"/>
+                                    </DataTrigger>
+
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+
+                    </Ellipse>
+
+                    <TextBlock
+                    Text="{Binding ConnectionState}"
+                    Foreground="White"
+                    FontSize="13"
+                    FontWeight="SemiBold"
+                    VerticalAlignment="Center"/>
+
+                </StackPanel>
+
+            </Border>
+
+            <!-- 실제 화면 -->
+            <ContentControl
+            Grid.Row="1"
+            Content="{Binding CurrentViewModel}"/>
+
+        </Grid>
+
     </Grid>
 </Window>

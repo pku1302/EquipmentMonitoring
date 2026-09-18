@@ -28,6 +28,8 @@ builder.Services.AddControllers();
 builder.Services.AddSingleton<
     IEquipmentCommunication, TcpCommunicationService>();
 
+builder.Services.AddSingleton<ConnectionStateService>();
+
 builder.Services.AddSingleton<
     EquipmentPacketParser>();
 

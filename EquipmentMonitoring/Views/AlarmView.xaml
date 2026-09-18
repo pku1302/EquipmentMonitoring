@@ -5,58 +5,121 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:EquipmentMonitoring.Views"
              mc:Ignorable="d" >
-    <Grid Margin="30">
-
+    <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock
-            Text="Alarm History"
-            FontSize="28"
-            FontWeight="Bold"/>
+        <StackPanel>
+            <TextBlock
+                Text="Active Alarms"
+                FontSize="24"
+                FontWeight="Bold"/>
 
-        <Button
+            <TextBlock
+                Margin="0,6,0,16"
+                Text="{Binding ActiveAlarms.Count, StringFormat=Active Count: {0}}"/>
+        </StackPanel>
+
+        <ListView
             Grid.Row="1"
-            Content="Refresh"
-            Command="{Binding RefreshCommand}"
-            Width="100"
-            Height="35"
-            HorizontalAlignment="Left"
-            Margin="0,20"/>
+            ItemsSource="{Binding ActiveAlarms}">
 
-        <DataGrid
+            <ListView.View>
+                <GridView>
+
+                    <GridViewColumn
+                        Header="Equipment"
+                        Width="100"
+                        DisplayMemberBinding="{Binding EquipmentId}"/>
+
+                    <GridViewColumn
+                        Header="Code"
+                        Width="140"
+                        DisplayMemberBinding="{Binding AlarmCode}"/>
+
+                    <GridViewColumn
+                        Header="Severity"
+                        Width="100"
+                        DisplayMemberBinding="{Binding Severity}"/>
+
+                    <GridViewColumn
+                        Header="Message"
+                        Width="300"
+                        DisplayMemberBinding="{Binding AlarmMessage}"/>
+
+                    <GridViewColumn
+                        Header="Occurred At"
+                        Width="160"
+                        DisplayMemberBinding="{Binding OccurredAt}"/>
+
+                </GridView>
+            </ListView.View>
+
+        </ListView>
+
+        <StackPanel 
             Grid.Row="2"
-            ItemsSource="{Binding Alarms}"
-            AutoGenerateColumns="False"
-            IsReadOnly="True">
-            
-            <DataGrid.Columns>
+            Orientation="Horizontal"
+            Margin="0,0,0,10">
 
-                <DataGridTextColumn 
-                    Header="Time"
-                    Binding="{Binding OccurredAt,
-                              StringFormat=yyyy-MM-dd HH:mm:ss}"
-                    Width="180"/>
+            <TextBox
+                Width="100"
+                Margin="0,0,10,0"
+                Text="{Binding SelectedEquipmentId}"
+                ToolTip="Equipment ID"/>
 
-                <DataGridTextColumn 
-                    Header="Equipment"
-                    Binding="{Binding EquipmentId}"
-                    Width="120"/>
+             <DatePicker
+                SelectedDate="{Binding From}"
+                Margin="0,0,10,0"/>
 
-                <DataGridTextColumn 
-                    Header="Code"
-                    Binding="{Binding AlarmCode}"
-                    Width="130"/>
+                    <DatePicker
+                SelectedDate="{Binding To}"
+                Margin="0,0,10,0"/>
 
-                <DataGridTextColumn 
-                    Header="Message"
-                    Binding="{Binding AlarmMessage}"
-                    Width="*"/>
+                    <Button
+                Content="Search"
+                Command="{Binding SearchHistoryCommand}"/>
+        </StackPanel>
+        <ListView 
+            Grid.Row="3"
+            ItemsSource="{Binding AlarmHistory}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn
+                Header="Equipment"
+                Width="100"
+                DisplayMemberBinding="{Binding EquipmentId}"/>
 
-            </DataGrid.Columns>
-        </DataGrid>
+                    <GridViewColumn
+                Header="Code"
+                Width="120"
+                DisplayMemberBinding="{Binding AlarmCode}"/>
+
+                    <GridViewColumn
+                Header="Severity"
+                Width="100"
+                DisplayMemberBinding="{Binding Severity}"/>
+
+                    <GridViewColumn
+                Header="Message"
+                Width="300"
+                DisplayMemberBinding="{Binding AlarmMessage}"/>
+
+                    <GridViewColumn
+                Header="Occurred"
+                Width="150"
+                DisplayMemberBinding="{Binding OccurredAt}"/>
+
+                    <GridViewColumn
+                Header="Cleared"
+                Width="150"
+                DisplayMemberBinding="{Binding ClearedAt}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
     </Grid>
 </UserControl>
