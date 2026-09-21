@@ -3,10 +3,11 @@ using CommunityToolkit.Mvvm.Input;
 using EquipmentMonitoring.Commands;
 using EquipmentMonitoring.Core.Enums;
 using EquipmentMonitoring.Services;
+using EquipmentMonitoring.ViewModels.Pages;
 using System.Windows;
 using System.Windows.Input;
 
-namespace EquipmentMonitoring.ViewModels;
+namespace EquipmentMonitoring.ViewModels.Pages;
 
 public partial class MainViewModel : ViewModelBase
 {
@@ -18,12 +19,14 @@ public partial class MainViewModel : ViewModelBase
         = ConnectionState.Disconnected;
 
     private readonly DashboardViewModel _dashboardViewModel;
+    private readonly LiveChartViewModel _liveChartViewModel;
     private readonly EquipmentViewModel _equipmentViewModel;
     private readonly AlarmViewModel _alarmViewModel;
     private readonly LogViewModel _logViewModel;
 
     public MainViewModel(
         DashboardViewModel dashboardViewModel,
+        LiveChartViewModel liveChartViewModel,
         EquipmentViewModel equipmentViewModel,
         AlarmViewModel alarmViewModel,
         LogViewModel logViewModel,
@@ -31,6 +34,9 @@ public partial class MainViewModel : ViewModelBase
     {
         _dashboardViewModel =
             dashboardViewModel;
+
+        _liveChartViewModel 
+            = liveChartViewModel;
 
         _equipmentViewModel =
             equipmentViewModel;
@@ -52,6 +58,12 @@ public partial class MainViewModel : ViewModelBase
     private void ShowDashboard()
     {
         CurrentViewModel = _dashboardViewModel;
+    }
+
+    [RelayCommand]
+    private void ShowLiveChart()
+    {
+        CurrentViewModel = _liveChartViewModel;
     }
 
     [RelayCommand]

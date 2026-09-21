@@ -11,16 +11,15 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace EquipmentMonitoring.Views
+namespace EquipmentMonitoring.Views.Pages;
+
+/// <summary>
+/// LogView.xaml에 대한 상호 작용 논리
+/// </summary>
+public partial class LogView : UserControl
 {
-    /// <summary>
-    /// LogView.xaml에 대한 상호 작용 논리
-    /// </summary>
-    public partial class LogView : UserControl
+    public LogView()
     {
-        public LogView()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

@@ -3,7 +3,7 @@ using EquipmentMonitoring.Services;
 using System.Collections.ObjectModel;
 using System.Windows;
 
-namespace EquipmentMonitoring.ViewModels;
+namespace EquipmentMonitoring.ViewModels.Pages;
 
 public partial class DashboardViewModel : ViewModelBase
 {

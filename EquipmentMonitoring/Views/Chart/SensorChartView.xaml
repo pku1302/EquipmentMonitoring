@@ -3,70 +3,98 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:EquipmentMonitoring.Views.Chart"
              mc:Ignorable="d" 
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
 >
 
     <Border
-        Margin="8"
-        Padding="20"
+        Grid.Row="2"
+        Margin="0,0,0,10"
+        Padding="14"
         Background="White"
-        CornerRadius="12"
+        CornerRadius="10"
         BorderBrush="#E5E7EB"
         BorderThickness="1">
+
+        <Border.Effect>
+            <DropShadowEffect
+                BlurRadius="8"
+                ShadowDepth="1"
+                Opacity="0.05"/>
+        </Border.Effect>
+
 
         <Grid>
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <StackPanel>
 
-                <TextBlock
-                    Text="{Binding Title}"
-                    FontSize="20"
-                    FontWeight="SemiBold"
-                    Foreground="#111827"/>
+            <!-- Header -->
+            <Grid Grid.Row="0"
+                  Margin="0,0,0,4">
 
-                <TextBlock
-                    Text="{Binding Description}"
-                    FontSize="12"
-                    Foreground="#6B7280"
-                    Margin="0,4,0,0"/>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            </StackPanel>
 
-            <StackPanel
-                Grid.Row="1"
-                Orientation="Horizontal"
-                Margin="0,15,0,10">
+                <StackPanel>
 
-                <TextBlock
-                    Text="{Binding CurrentValue,
-                                   StringFormat={}{0:F1}}"
-                    FontSize="28"
-                    FontWeight="Bold"/>
+                    <TextBlock
+                        Text="{Binding Name}"
+                        FontSize="16"
+                        FontWeight="SemiBold"
+                        Foreground="#111827"/>
 
-                <TextBlock
-                    Text="{Binding Unit}"
-                    FontSize="16"
-                    Foreground="#6B7280"
-                    VerticalAlignment="Bottom"
-                    Margin="4,0,0,4"/>
+                    <TextBlock
+                        Text="{Binding Description}"
+                        FontSize="11"
+                        Foreground="#6B7280"/>
 
-            </StackPanel>
+                </StackPanel>
+
+                <StackPanel
+                    Grid.Column="1"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center">
+
+                    <TextBlock
+                        Text="{Binding CurrentValue,
+                                       StringFormat={}{0:F1}}"
+                        FontSize="21"
+                        FontWeight="Bold"
+                        Foreground="{Binding ColorHex}"/>
+
+                    <TextBlock
+                        Text="{Binding Unit}"
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        Foreground="{Binding ColorHex}"
+                        VerticalAlignment="Bottom"
+                        Margin="2,0,0,3"/>
+
+                </StackPanel>
+
+            </Grid>
+
 
             <lvc:CartesianChart
-                Grid.Row="2"
+                x:Name="Chart"
+                Grid.Row="1"
+
                 Series="{Binding Series}"
                 XAxes="{Binding XAxes}"
                 YAxes="{Binding YAxes}"
-                ZoomMode="X"
-                Height="280"/>
+                
+                MouseLeftButtonDown="Chart_PreviewMouseLeftButtonDown"
+                MouseLeftButtonUp="Chart_PreviewMouseLeftButtonUp"
+
+                ZoomMode="PanX"
+            />
 
         </Grid>
 

@@ -1,6 +1,7 @@
 ﻿using EquipmentMonitoring.Parsers;
 using EquipmentMonitoring.Services;
 using EquipmentMonitoring.ViewModels;
+using EquipmentMonitoring.ViewModels.Pages;
 using Microsoft.Extensions.DependencyInjection;
 using System.Configuration;
 using System.Data;
@@ -61,6 +62,8 @@ namespace EquipmentMonitoring
             services.AddSingleton<MainViewModel>();
 
             services.AddSingleton<MonitoringSignalRService>();
+
+            services.AddSingleton<LiveChartViewModel>();
 
             // =========================
             // Views

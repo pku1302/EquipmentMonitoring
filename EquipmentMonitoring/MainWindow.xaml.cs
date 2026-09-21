@@ -1,5 +1,5 @@
 ﻿using System.Windows;
-using EquipmentMonitoring.ViewModels;
+using EquipmentMonitoring.ViewModels.Pages;
 
 namespace EquipmentMonitoring
 {

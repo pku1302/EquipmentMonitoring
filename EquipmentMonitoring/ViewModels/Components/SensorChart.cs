@@ -1,32 +1,47 @@
-﻿using EquipmentMonitoring.Models;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using EquipmentMonitoring.Core.Models;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
 using System.Collections.ObjectModel;
+using System.Drawing;
 
-namespace EquipmentMonitoring.ViewModels;
+namespace EquipmentMonitoring.ViewModels.Components;
 
-public class SensorChart
+public partial class SensorChart : ObservableObject
 {
     public ObservableCollection<DateTimePoint> Values { get; }
         = new();
     public ISeries[] Series { get; }
-
+    public string Name { get; }
+    public string Description { get; }
     public Axis[] XAxes { get; }
     public Axis[] YAxes { get; }
-    private readonly Func<SensorSample, double> _valueSelector;
+    public string Unit { get; }
+    public string ColorHex { get; }
+    private readonly Func<EquipmentData, double> _valueSelector;
+
+    [ObservableProperty]
+    private double _currentValue;
 
     public SensorChart(
         string name,
+        string description,
         string yAxisName,
-        Func<SensorSample, double> valueSelector,
+        Func<EquipmentData, double> valueSelector,
         double minLimit,
         double maxLimit,
         double minStep,
         SKColor color)
     {
+        Name = name;
+        Description = description;
+        Unit = yAxisName;
+
+        ColorHex = $"#{color.Red:X2}{color.Green:X2}{color.Blue:X2}";
+
         _valueSelector = valueSelector;
 
         Series =
@@ -64,7 +79,7 @@ public class SensorChart
                         color,
                         2),
 
-                    GeometryFill = 
+                    GeometryFill =
                         new SolidColorPaint(SKColors.Wheat),
 
                     LineSmoothness = 0.2
@@ -76,8 +91,6 @@ public class SensorChart
                 new DateTimeAxis(
                     TimeSpan.FromSeconds(1),
                     date => date.ToString("HH:mm:ss"))
-                {
-                }
             ];
 
         YAxes =
@@ -90,12 +103,14 @@ public class SensorChart
                 }
             ];
     }
-    public void Add(SensorSample sample)
+    public void Add(EquipmentData sample)
     {
         Values.Add(
             new DateTimePoint(
                 sample.Timestamp,
                 _valueSelector(sample)));
+
+        CurrentValue = _valueSelector(sample);
     }
     public void Clear()
     {

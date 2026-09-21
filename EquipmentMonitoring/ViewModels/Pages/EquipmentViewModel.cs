@@ -1,12 +1,9 @@
-﻿using CommunityToolkit.Mvvm.Input;
-using EquipmentMonitoring.Commands;
-using EquipmentMonitoring.Core.Models;
-using EquipmentMonitoring.Models;
+﻿using EquipmentMonitoring.Core.Models;
 using EquipmentMonitoring.Services;
 using System.Collections.ObjectModel;
 using System.Windows;
 
-namespace EquipmentMonitoring.ViewModels;
+namespace EquipmentMonitoring.ViewModels.Pages;
 
 public partial class EquipmentViewModel : ViewModelBase
 {

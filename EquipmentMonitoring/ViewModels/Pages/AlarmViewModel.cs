@@ -2,11 +2,12 @@
 using CommunityToolkit.Mvvm.Input;
 using EquipmentMonitoring.Core.Models;
 using EquipmentMonitoring.Services;
+using EquipmentMonitoring.ViewModels.Pages;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows;
 
-namespace EquipmentMonitoring.ViewModels;
+namespace EquipmentMonitoring.ViewModels.Pages;
 
 public partial class AlarmViewModel : ViewModelBase
 {

@@ -2,7 +2,7 @@
 using EquipmentMonitoring.Services;
 using System.Collections.ObjectModel;
 
-namespace EquipmentMonitoring.ViewModels;
+namespace EquipmentMonitoring.ViewModels.Pages;
 
 public partial class LogViewModel : ViewModelBase
 {
