@@ -31,14 +31,14 @@ public class SensorHistoryWorker : BackgroundService
 
                 foreach (var equipment in equipments)
                 {
-                    var history = new SensorHistory
+                    var history = new EquipmentData
                     {
                         EquipmentId = equipment.EquipmentId,
                         Temperature = equipment.Temperature,
                         Pressure = equipment.Pressure,
                         MotorRpm = equipment.MotorRpm,
                         ProductionCount = equipment.ProductionCount,
-                        CreatedAt = DateTime.Now
+                        Timestamp = DateTime.UtcNow
                     };
 
                     await _sensorRepository.InsertAsync(

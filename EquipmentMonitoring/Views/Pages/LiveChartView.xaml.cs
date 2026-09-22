@@ -1,5 +1,6 @@
 ﻿using EquipmentMonitoring.ViewModels.Pages;
 using EquipmentMonitoring.Views.Chart;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace EquipmentMonitoring.Views.Pages;

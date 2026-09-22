@@ -42,7 +42,7 @@ public class AlarmService
                 AlarmMessage =
                     $"High Temperature Detected: {data.Temperature:F1} ℃",
                 Severity = AlarmSeverity.Critical,
-                OccurredAt = DateTime.Now,
+                OccurredAt = DateTime.UtcNow,
                 IsActive = true
             };
 
@@ -65,7 +65,7 @@ public class AlarmService
                 key,
                 out var activeAlarm))
         {
-            var clearedAt = DateTime.Now;
+            var clearedAt = DateTime.UtcNow;
 
             await _alarmRepository.ClearAsync(
                 activeAlarm.Id,

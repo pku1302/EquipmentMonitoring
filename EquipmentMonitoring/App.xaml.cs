@@ -38,6 +38,8 @@ namespace EquipmentMonitoring
 
             services.AddSingleton<MonitoringSignalRService>();
 
+            services.AddSingleton<SensorApiService>();
+
             // =========================
             // Application Services
             // =========================

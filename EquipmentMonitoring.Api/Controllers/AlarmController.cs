@@ -29,8 +29,8 @@ public class AlarmController : ControllerBase
     [HttpGet("history")]
     public async Task<IActionResult> GetHistory(
         string? equipmentId,
-        DateTime from,
-        DateTime to,
+        DateTimeOffset from,
+        DateTimeOffset to,
         CancellationToken cancellationToken)
     {
         if (from > to)
@@ -42,8 +42,8 @@ public class AlarmController : ControllerBase
         var alarms =
             await _alarmRepository.GetHistoryAsync(
                 equipmentId,
-                from,
-                to,
+                from.UtcDateTime,
+                to.UtcDateTime,
                 cancellationToken);
 
         return Ok(alarms);

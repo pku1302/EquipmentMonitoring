@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using EquipmentMonitoring.Core.Models;
+using EquipmentMonitoring.Models;
 using EquipmentMonitoring.Services;
 using EquipmentMonitoring.ViewModels.Pages;
 using System.Collections.ObjectModel;
@@ -15,20 +16,22 @@ public partial class AlarmViewModel : ViewModelBase
     private readonly AlarmApiService _alarmApiService;
     private bool _loaded = false;
 
-    public ObservableCollection<Alarm> ActiveAlarms { get; }
+    public ObservableCollection<AlarmItemViewModel> ActiveAlarms { get; }
         = new();
 
-    public ObservableCollection<Alarm> AlarmHistory { get; }
+    public ObservableCollection<AlarmItemViewModel> AlarmHistory { get; }
         = new();
 
     [ObservableProperty]
     private string? selectedEquipmentId;
 
     [ObservableProperty]
-    private DateTime from = DateTime.Today;
+    private DateTime from = 
+        DateTime.Today.ToUniversalTime();
 
     [ObservableProperty]
-    private DateTime to = DateTime.Now;
+    private DateTime to = 
+        DateTime.UtcNow;
 
     [RelayCommand]
     private async Task SearchHistoryAsync()
@@ -43,7 +46,8 @@ public partial class AlarmViewModel : ViewModelBase
 
         foreach (var alarm in alarms)
         {
-            AlarmHistory.Add(alarm);
+            AlarmHistory.Add(
+                new AlarmItemViewModel(alarm));
         }
     }
 
@@ -65,25 +69,37 @@ public partial class AlarmViewModel : ViewModelBase
 
         _loaded = true;
 
-        var alarms =
-            await _alarmApiService.GetActiveAsync();
-
-        Application.Current.Dispatcher.Invoke(() =>
+        try
         {
-            ActiveAlarms.Clear();
+            var alarms =
+                await _alarmApiService.GetActiveAsync();
 
-            foreach (var alarm in alarms)
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                ActiveAlarms.Add(alarm);
-            }
-        });
+                ActiveAlarms.Clear();
+
+                foreach (var alarm in alarms)
+                {
+                    ActiveAlarms.Add(
+                        new AlarmItemViewModel(alarm));
+                }
+            });
+
+            _loaded = true;
+        }
+        catch
+        {
+            _loaded = false;
+            throw;
+        }
     }
 
     private void OnAlarmRaised(Alarm alarm)
     {
         Application.Current.Dispatcher.Invoke(() =>
         {
-            ActiveAlarms.Add(alarm);
+            ActiveAlarms.Add(
+                new AlarmItemViewModel(alarm));
         });
     }
 

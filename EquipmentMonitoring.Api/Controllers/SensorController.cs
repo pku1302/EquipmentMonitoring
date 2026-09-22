@@ -1,4 +1,5 @@
-﻿using EquipmentMonitoring.Infrastructure.Repositories;
+﻿using EquipmentMonitoring.Core.Interfaces;
+using EquipmentMonitoring.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EquipmentMonitoring.Api.Controllers;
@@ -7,10 +8,10 @@ namespace EquipmentMonitoring.Api.Controllers;
 [Route("api/[controller]")]
 public class SensorController : ControllerBase
 {
-    private readonly SensorRepository _sensorRepository;
+    private readonly ISensorRepository _sensorRepository;
 
     public SensorController(
-        SensorRepository sensorRepository)
+        ISensorRepository sensorRepository)
     {
         _sensorRepository = sensorRepository;
     }
@@ -18,23 +19,34 @@ public class SensorController : ControllerBase
     [HttpGet("history")]
     public async Task<IActionResult> GetHistory(
         string equipmentId,
-        DateTime from,
-        DateTime to,
+        DateTimeOffset from,
+        DateTimeOffset to,
         CancellationToken cancellationToken)
     {
-        if (from > to)
+        try
         {
-            return BadRequest(
-                "from must be earlier than to.");
+            if (from > to)
+            {
+                return BadRequest(
+                    "from must be earlier than to.");
+            }
+
+            var history =
+                await _sensorRepository.GetHistoriesAsync(
+                    equipmentId,
+                    from.UtcDateTime,
+                    to.UtcDateTime,
+                    cancellationToken);
+
+            return Ok(history);
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
 
-        var history =
-            await _sensorRepository.GetHistoriesAsync(
-                equipmentId,
-                from,
-                to,
-                cancellationToken);
-
-        return Ok(history);
+            return StatusCode(
+                500,
+                ex.Message);
+        }
     }
 }

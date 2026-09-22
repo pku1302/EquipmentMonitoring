@@ -12,8 +12,14 @@ namespace EquipmentMonitoring.ViewModels.Components;
 
 public partial class SensorChart : ObservableObject
 {
-    public ObservableCollection<DateTimePoint> Values { get; }
+    public ObservableCollection<DateTimePoint?> LiveValues { get; }
         = new();
+
+    public ObservableCollection<DateTimePoint?> HistoryValues { get; }
+        = new();
+
+    private readonly LineSeries<DateTimePoint?> _series;
+
     public ISeries[] Series { get; }
     public string Name { get; }
     public string Description { get; }
@@ -44,18 +50,16 @@ public partial class SensorChart : ObservableObject
 
         _valueSelector = valueSelector;
 
-        Series =
-            [
-                new LineSeries<DateTimePoint>
-                {
-                    Values = Values,
-                    Name = name,
+        _series = new LineSeries<DateTimePoint?>
+        {
+            Values = LiveValues,
+            Name = name,
 
-                    Stroke = new SolidColorPaint(
+            Stroke = new SolidColorPaint(
                         color,
                         3),
 
-                    Fill = new LinearGradientPaint(
+            Fill = new LinearGradientPaint(
                         new[]
                         {
                             new SKColor(
@@ -73,24 +77,28 @@ public partial class SensorChart : ObservableObject
                         new SKPoint(0, 0),
                         new SKPoint(0, 1)),
 
-                    GeometrySize = 4,
+            GeometrySize = 4,
 
-                    GeometryStroke = new SolidColorPaint(
+            GeometryStroke = new SolidColorPaint(
                         color,
                         2),
 
-                    GeometryFill =
+            GeometryFill =
                         new SolidColorPaint(SKColors.Wheat),
 
-                    LineSmoothness = 0.2
-                }
+            LineSmoothness = 0.2
+        };
+
+        Series =
+            [
+                _series
             ];
 
         XAxes =
             [
                 new DateTimeAxis(
                     TimeSpan.FromSeconds(1),
-                    date => date.ToString("HH:mm:ss"))
+                    date => date.ToLocalTime().ToString("HH:mm:ss"))
             ];
 
         YAxes =
@@ -103,26 +111,81 @@ public partial class SensorChart : ObservableObject
                 }
             ];
     }
-    public void Add(EquipmentData sample)
+    public void UseLiveValues()
     {
-        Values.Add(
+        _series.Values = LiveValues;
+    }
+    public void UseHistoryValues()
+    {
+        _series.Values = HistoryValues;
+    }
+
+    public void AddLive(EquipmentData sample)
+    {
+        LiveValues.Add(
             new DateTimePoint(
                 sample.Timestamp,
                 _valueSelector(sample)));
 
         CurrentValue = _valueSelector(sample);
     }
+
+    public void SetHistory(
+        IEnumerable<EquipmentData> history)
+    {
+        HistoryValues.Clear();
+
+        DateTime? previousTime = null;
+
+        foreach (var sample in history.OrderBy(x => x.Timestamp))
+        {
+            if (previousTime.HasValue)
+            {
+                var gap =
+                    sample.Timestamp - previousTime.Value;
+
+                // DB의 현재 저장 주기는 5초
+                // 15초 이상 데이터 간격이 있으면
+                // Null을 넣어서 선을 끊는다
+                if (gap > TimeSpan.FromSeconds(15))
+                {
+                    HistoryValues.Add(null);
+                }
+            }
+
+            HistoryValues.Add(
+                new DateTimePoint(
+                    sample.Timestamp,
+                    _valueSelector(sample)));
+
+            previousTime = sample.Timestamp;
+        }
+    }
+
     public void Clear()
     {
-        Values.Clear();
+        LiveValues.Clear();
     }
 
     public void RemoveBefore(DateTime cutoff)
     {
-        while (Values.Count > 0 &&
-            Values[0].DateTime < cutoff)
+        while (LiveValues.Count > 0)
         {
-            Values.RemoveAt(0);
+            var first = LiveValues[0];
+
+            if (first is null)
+            {
+                LiveValues.RemoveAt(0);
+                continue;
+            }
+
+            if (first.DateTime < cutoff)
+            {
+                LiveValues.RemoveAt(0);
+                continue;
+            }
+
+            break;
         }
     }
 

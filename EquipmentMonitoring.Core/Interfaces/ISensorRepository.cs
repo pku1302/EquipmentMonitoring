@@ -5,10 +5,10 @@ namespace EquipmentMonitoring.Core.Interfaces;
 public interface ISensorRepository
 {
     Task InsertAsync(
-        SensorHistory history,
+        EquipmentData history,
         CancellationToken cancellationToken = default);
 
-    Task<List<SensorHistory>> GetHistoriesAsync(
+    Task<List<EquipmentData>> GetHistoriesAsync(
         string equipmentId,
         DateTime from,
         DateTime to,

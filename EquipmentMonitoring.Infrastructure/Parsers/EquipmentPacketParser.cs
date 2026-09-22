@@ -35,7 +35,7 @@ public class EquipmentPacketParser
             Pressure = pressure,
             MotorRpm = motorRpm,
             ProductionCount = productionCount,
-            Timestamp = DateTime.Now
+            Timestamp = DateTime.UtcNow
         };
 
         return true;

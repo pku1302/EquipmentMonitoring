@@ -14,7 +14,7 @@ public class SensorRepository : ISensorRepository
     }
 
     public async Task InsertAsync(
-        SensorHistory history,
+        EquipmentData history,
         CancellationToken cancellationToken = default)
     {
         const string sql = """
@@ -68,18 +68,19 @@ public class SensorRepository : ISensorRepository
 
         command.Parameters.AddWithValue(
             "@CreatedAt",
-            history.CreatedAt);
+            history.Timestamp);
 
         await command.ExecuteNonQueryAsync(
             cancellationToken);
     }
 
-    public async Task<List<SensorHistory>> GetHistoriesAsync(
+    public async Task<List<EquipmentData>> GetHistoriesAsync(
         string equipmentId,
         DateTime from,
         DateTime to,
         CancellationToken cancellationToken = default)
     {
+
         const string sql = """
             SELECT
                 id,
@@ -96,7 +97,7 @@ public class SensorRepository : ISensorRepository
             ORDER BY CreatedAt
             """;
 
-        var result = new List<SensorHistory>();
+        var result = new List<EquipmentData>();
 
         await using var connection =
             new SqlConnection(_connectionString);
@@ -123,15 +124,14 @@ public class SensorRepository : ISensorRepository
 
         while (await reader.ReadAsync(cancellationToken))
         {
-            result.Add(new SensorHistory
+            result.Add(new EquipmentData
             {
-                Id = reader.GetInt64(0),
                 EquipmentId = reader.GetString(1),
                 Temperature = reader.GetDouble(2),
                 Pressure = reader.GetDouble(3),
                 MotorRpm = reader.GetInt32(4),
                 ProductionCount = reader.GetInt32(5),
-                CreatedAt = reader.GetDateTime(6)
+                Timestamp = reader.GetDateTime(6)
             });
         }
 
